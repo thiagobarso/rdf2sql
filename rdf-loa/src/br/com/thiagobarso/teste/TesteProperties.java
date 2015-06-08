@@ -9,7 +9,8 @@ public class TesteProperties {
 	public static void main(String[] args) {
 		String singleroot = "/rdf-timoteo/loa2015/loa2015.nt";
 		String t = "loa:Esfera";
-		String teste = new SearchInRdf().getQueryCreateTable(t, singleroot);
+		ArrayList<String> colunas = new SearchInRdf().getColunas(t, singleroot);
+		String teste = new SearchInRdf().getQuerySelectRdf(t, singleroot, colunas);
 		System.out.println(teste);
 
 	}

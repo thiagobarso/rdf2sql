@@ -46,6 +46,12 @@ public class SearchInRdf {
 	public String getQueryCreateTable(String t, String singleroot) {
 		ArrayList<String> colunasPertencentesATabela = new ArrayList<String>();
 		colunasPertencentesATabela = getColunas(t, singleroot);
+		if(!colunasPertencentesATabela.equals(null)){
+			
+		}else{
+			
+		}
+		
 		return criarTabela(t, colunasPertencentesATabela).equals(null) ? null
 				: criarTabela(t, colunasPertencentesATabela).toString();
 	}
@@ -101,7 +107,7 @@ public class SearchInRdf {
 		return sqlTable;
 	}
 	
-	public String getQuerySelect(String tabela, String singleroot, ArrayList<String> colunas){
+	public String getQuerySelectRdf(String tabela, String singleroot, ArrayList<String> colunas){
 		Model model = FileManager.get().loadModel(singleroot);
 		ArrayList<String> result = new ArrayList<String>();
 		StringBuilder queryString = new StringBuilder(); 
@@ -111,29 +117,57 @@ public class SearchInRdf {
 		queryString.append("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ");
 		queryString.append("SELECT distinct ");
 		for(String c : colunas){
-			queryString.append("?" + c.replace("loa:", ""));
+			queryString.append("?" + c.toLowerCase().replace("loa:", "") + " ");
 		}
 		queryString.append("WHERE { ");
-		// TODO query preenchida com valores
+		for(String c : colunas){
+			queryString.append("?" + tabela.toLowerCase().replace("loa:", ""));
+			queryString.append(" ");
+			queryString.append(getPredicate(c));
+			queryString.append(" ");
+			queryString.append("?" + c.toLowerCase().replace("loa:",""));
+			queryString.append(" ");
+			queryString.append(". ");			
+		}
+		queryString.append("?" + tabela.toLowerCase().replace("loa:", "") + " a " + tabela);
+		queryString.append(". ");
 		queryString.append("} ");
 		Query query = QueryFactory.create(queryString.toString());
+		StringBuilder querySqlInsert = new StringBuilder();
 		try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
 			ResultSet results = qexec.execSelect();
 			for (; results.hasNext();) {
 				QuerySolution soln = results.nextSolution();
-				Resource r = soln.getResource("property");
-				if (!(r.getLocalName().equals("type") || r.getLocalName()
-						.equals("Property"))) {
-					System.out.println("loa:" + r.getLocalName());
-					result.add("loa:" + r.getLocalName());
+				querySqlInsert.append("INSERT INTO " + tabela.replace("loa:", "") + "(");
+				for(String c : colunas){
+					querySqlInsert.append(c.replace("loa:",""));
+					if(!(c.equals(colunas.get(colunas.size() - 1)))){
+						querySqlInsert.append(", ");
+					}
+				}
+				querySqlInsert.append(") VALUES (");
+				for(String c : colunas){
+					Resource r = soln.getResource(c.replace("loa:", ""));
+					querySqlInsert.append(r.getLocalName());
+					if(!(c.equals(colunas.get(colunas.size() - 1)))){
+						querySqlInsert.append(", ");
+					}
+				}
+				querySqlInsert.append("); ");				
 				}
 			}
-
-		}
-		//System.out.println("Numero de Propriedades: " + result.size()
-			//	+ " Para a tabela " + t);
-		return null;
+		return querySqlInsert.toString();
 		
+	}
+
+	public String getPredicate(String c) {
+		StringBuilder query = new StringBuilder();
+		if(c.equals("loa:codigo")){
+			query.append(c);
+		}if(c.equals("loa:label")){
+			query.append(c);
+		}
+		return query.toString();
 	}
 
 }
