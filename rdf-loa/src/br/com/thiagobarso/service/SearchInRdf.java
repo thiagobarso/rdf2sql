@@ -25,6 +25,7 @@ public class SearchInRdf {
 				+ "WHERE { "
 				+ " [] rdf:type ?nome . " + "} ";
 		Query query = QueryFactory.create(queryString);
+		System.out.println("Função: getTables()");
 		try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
 			ResultSet results = qexec.execSelect();
 			for (; results.hasNext();) {
@@ -86,10 +87,10 @@ public class SearchInRdf {
 		StringBuilder sqlTable = new StringBuilder();
 		sqlTable.append("CREATE TABLE ");
 		sqlTable.append(t);
-		sqlTable.append("(");
+		sqlTable.append(" ( ");
 		for (String c : colunasPertencentesATabela) {
 			sqlTable.append(c);
-			sqlTable.append("character varying(300)");
+			sqlTable.append(" character varying(300) ");
 			if (c != colunasPertencentesATabela.get(colunasPertencentesATabela
 					.size() - 1)) {
 				sqlTable.append(", ");
@@ -98,6 +99,41 @@ public class SearchInRdf {
 		sqlTable.append(");");
 
 		return sqlTable;
+	}
+	
+	public String getQuerySelect(String tabela, String singleroot, ArrayList<String> colunas){
+		Model model = FileManager.get().loadModel(singleroot);
+		ArrayList<String> result = new ArrayList<String>();
+		StringBuilder queryString = new StringBuilder(); 
+		queryString.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> ");
+		queryString.append("PREFIX loa: <http://vocab.e.gov.br/2013/09/loa#> ");
+		queryString.append("PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> ");
+		queryString.append("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ");
+		queryString.append("SELECT distinct ");
+		for(String c : colunas){
+			queryString.append("?" + c.replace("loa:", ""));
+		}
+		queryString.append("WHERE { ");
+		// TODO query preenchida com valores
+		queryString.append("} ");
+		Query query = QueryFactory.create(queryString.toString());
+		try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
+			ResultSet results = qexec.execSelect();
+			for (; results.hasNext();) {
+				QuerySolution soln = results.nextSolution();
+				Resource r = soln.getResource("property");
+				if (!(r.getLocalName().equals("type") || r.getLocalName()
+						.equals("Property"))) {
+					System.out.println("loa:" + r.getLocalName());
+					result.add("loa:" + r.getLocalName());
+				}
+			}
+
+		}
+		//System.out.println("Numero de Propriedades: " + result.size()
+			//	+ " Para a tabela " + t);
+		return null;
+		
 	}
 
 }

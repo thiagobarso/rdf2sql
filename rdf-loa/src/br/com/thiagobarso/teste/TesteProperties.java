@@ -8,8 +8,9 @@ public class TesteProperties {
 
 	public static void main(String[] args) {
 		String singleroot = "/rdf-timoteo/loa2015/loa2015.nt";
-		String t = "loa:ItemDespesa";
-		ArrayList<String> teste = new SearchInRdf().getTables(singleroot);
+		String t = "loa:Esfera";
+		String teste = new SearchInRdf().getQueryCreateTable(t, singleroot);
+		System.out.println(teste);
 
 	}
 
