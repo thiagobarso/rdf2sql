@@ -22,6 +22,7 @@ public class DoRdf {
 		for(String t: tabelas){
 			queryCriacao.append(search.getQueryCreateTable(t,singleroot));
 		}
+		System.out.println(queryCriacao);
 
 	}
 	
