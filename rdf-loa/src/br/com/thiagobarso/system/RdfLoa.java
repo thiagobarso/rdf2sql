@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public class RdfLoa {
 
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 
 		ArrayList<String> tabelas = new ArrayList<String>();
 		ArrayList<String> colunas = new ArrayList<String>();
@@ -75,7 +75,7 @@ public class RdfLoa {
 
 		//gerarSparql(tabelas, colunas);
 
-	}
+	}*/
 
 	private static void gerarSparql(ArrayList<String> tabelas,
 			ArrayList<String> colunas) {

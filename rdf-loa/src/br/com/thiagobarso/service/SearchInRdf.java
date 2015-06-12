@@ -1,6 +1,12 @@
 package br.com.thiagobarso.service;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
+
+import br.com.thiagobarso.system.ConnectionFactory;
 
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
@@ -8,6 +14,7 @@ import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -32,8 +39,9 @@ public class SearchInRdf {
 			for (; results.hasNext();) {
 				QuerySolution soln = results.nextSolution();
 				Resource r = soln.getResource("nome");
-				if (!(r.getLocalName().equals("Class") || r.getLocalName()
-						.equals("Property"))) {
+				if (!(r.getLocalName().equals("Class")
+						|| r.getLocalName().equals("Property") || r
+						.getLocalName().equals("Exercicio"))) {
 					System.out.println("loa:" + r.getLocalName());
 					result.add("loa:" + r.getLocalName());
 				}
@@ -46,9 +54,12 @@ public class SearchInRdf {
 
 	public String getQueryCreateTable(String t, String singleroot) {
 		ArrayList<String> colunasPertencentesATabela = new ArrayList<String>();
+		System.out.println("==============================================");
+		System.out.println("Tabela: " + t);
 		colunasPertencentesATabela = getColunas(t, singleroot);
-		return criarTabela(t, colunasPertencentesATabela, singleroot).equals(null) ? null
-				: criarTabela(t, colunasPertencentesATabela, singleroot).toString();
+		return criarTabela(t, colunasPertencentesATabela, singleroot).equals(
+				null) ? null : criarTabela(t, colunasPertencentesATabela,
+				singleroot).toString();
 	}
 
 	public ArrayList<String> getColunas(String t, String singleroot) {
@@ -98,35 +109,40 @@ public class SearchInRdf {
 			}
 		}
 		sqlTable.append(");");
-		sqlTable.append(getQuerySelectRdf(t,singleroot,colunasPertencentesATabela));
+		sqlTable.append(getQuerySelectRdf(t, singleroot,
+				colunasPertencentesATabela));
 
 		return sqlTable;
 	}
-	
-	public String getQuerySelectRdf(String tabela, String singleroot, ArrayList<String> colunas){
+
+	public String getQuerySelectRdf(String tabela, String singleroot,
+			ArrayList<String> colunas) {
 		System.out.println("=================Começando - getQuerySelectRdf");
 		StringBuilder querySqlInsert = new StringBuilder();
 		Model model = FileManager.get().loadModel(singleroot);
-		StringBuilder queryString = new StringBuilder(); 
-		queryString.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> ");
+		StringBuilder queryString = new StringBuilder();
+		queryString
+				.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> ");
 		queryString.append("PREFIX loa: <http://vocab.e.gov.br/2013/09/loa#> ");
 		queryString.append("PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> ");
-		queryString.append("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ");
+		queryString
+				.append("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ");
 		queryString.append("SELECT distinct ");
-		for(String c : colunas){
+		for (String c : colunas) {
 			queryString.append("?" + c.toLowerCase().replace("loa:", "") + " ");
 		}
 		queryString.append("WHERE { ");
-		for(String c : colunas){
+		for (String c : colunas) {
 			queryString.append("?" + tabela.toLowerCase().replace("loa:", ""));
 			queryString.append(" ");
 			queryString.append(getPredicate(c));
 			queryString.append(" ");
-			queryString.append("?" + c.toLowerCase().replace("loa:",""));
+			queryString.append(getWhereRdf(c, colunas));
 			queryString.append(" ");
-			queryString.append(". ");			
+			queryString.append(". ");
 		}
-		queryString.append("?" + tabela.toLowerCase().replace("loa:", "") + " a " + tabela);
+		queryString.append("?" + tabela.toLowerCase().replace("loa:", "")
+				+ " a " + tabela);
 		queryString.append(". ");
 		queryString.append("} ");
 		Query query = QueryFactory.create(queryString.toString());
@@ -136,25 +152,114 @@ public class SearchInRdf {
 			for (; results.hasNext();) {
 				QuerySolution soln = results.nextSolution();
 				for (String c : colunas) {
-					RDFNode x = soln.get("?" + c.replace("loa:", ""));
-					if(!x.equals(null)){
-						System.out.println("RDF NODE: " + x.toString());					
-						valores.add(x.toString());			
-					}					
+					RDFNode x = soln.get("?"
+							+ c.toLowerCase().replace("loa:", ""));
+					if (!x.equals(null)) {
+						System.out
+								.println("Resource NODE: "
+										+ x.toString()
+												.replace(
+														"^^http://www.w3.org/2001/XMLSchema#decimal",
+														"")
+												.replace(
+														"^^http://www.w3.org/2001/XMLSchema#integer",
+														""));
+						valores.add(x
+								.toString()
+								.replace(
+										"^^http://www.w3.org/2001/XMLSchema#decimal",
+										"")
+								.replace(
+										"^^http://www.w3.org/2001/XMLSchema#integer",
+										""));
+					}
 				}
-				querySqlInsert.append(createInsertSql(tabela,colunas, valores));
-				valores.clear();
-			}
+			querySqlInsert.append(createInsertSql(tabela, colunas, valores));
+			valores.clear();
+			}			
 		}
 		System.out.println("=================Terminando - getQuerySelectRdf");
-		return querySqlInsert.toString();		
+		return querySqlInsert.toString();
+	}
+
+	public String getWhereRdf(String c, ArrayList<String> colunas) {
+		StringBuilder queryString = new StringBuilder();
+		if (c.equals("loa:temIdentificadorUso")
+				|| c.equals("loa:temModalidadeAplicacao")
+				|| c.equals("loa:temUnidadeOrcamentaria")
+				|| c.equals("loa:temSubfuncao") || c.equals("loa:temFuncao")
+				|| c.equals("loa:temPrograma")
+				|| c.equals("loa:temFonteRecursos") || c.equals("loa:temGND")
+				|| c.equals("loa:temCategoriaEconomica")
+				|| c.equals("loa:temElementoDespesa")
+				|| c.equals("loa:temPlanoOrcamentario")
+				|| c.equals("loa:temResultadoPrimario")
+				|| c.equals("loa:temAcao") || c.equals("loa:temEsfera")
+				|| c.equals("loa:temSubtitulo")) {
+			queryString.append("?" + colunas.indexOf(c) + ". ");
+			queryString.append("?" + colunas.indexOf(c) + " a " + getNameLOA(c)
+					+ " . ");
+			queryString.append("?" + colunas.indexOf(c) + " loa:codigo " + "?"
+					+ c.toLowerCase().replace("loa:", ""));
+		}
+		if (c.equals("loa:temExercicio")) {
+			queryString.append("?" + colunas.indexOf(c) + ". ");
+			queryString.append("?" + colunas.indexOf(c) + " a " + getNameLOA(c)
+					+ " . ");
+			queryString.append("?" + colunas.indexOf(c) + " loa:identificador "
+					+ "?" + c.toLowerCase().replace("loa:", ""));
+		}
+		if (!(c.equals("loa:temIdentificadorUso")
+				|| c.equals("loa:temExercicio")
+				|| c.equals("loa:temModalidadeAplicacao")
+				|| c.equals("loa:temUnidadeOrcamentaria")
+				|| c.equals("loa:temSubfuncao") || c.equals("loa:temFuncao")
+				|| c.equals("loa:temPrograma")
+				|| c.equals("loa:temFonteRecursos") || c.equals("loa:temGND")
+				|| c.equals("loa:temCategoriaEconomica")
+				|| c.equals("loa:temElementoDespesa")
+				|| c.equals("loa:temPlanoOrcamentario")
+				|| c.equals("loa:temResultadoPrimario")
+				|| c.equals("loa:temAcao") || c.equals("loa:temEsfera") || c
+					.equals("loa:temSubtitulo"))) {
+			queryString.append("?" + c.toLowerCase().replace("loa:", "") + " ");
+		}
+		return queryString.toString();
+	}
+
+	public String getNameLOA(String c) {
+		if (c.equals("loa:temGND")) {
+			return "loa:GrupoNatDespesa";
+		} else {
+			return c.replace("loa:tem", "loa:");
+		}
 	}
 
 	public String getPredicate(String c) {
 		StringBuilder query = new StringBuilder();
-		if(c.equals("loa:codigo")){
+		if (c.equals("loa:codigo") || c.equals("loa:identificador")
+				|| c.equals("loa:temIdentificadorUso")
+				|| c.equals("loa:valorLeiMaisCredito")
+				|| c.equals("loa:temModalidadeAplicacao")
+				|| c.equals("loa:temUnidadeOrcamentaria")
+				|| c.equals("loa:temSubfuncao")
+				|| c.equals("loa:valorLiquidado") || c.equals("loa:temFuncao")
+				|| c.equals("loa:valorDotacaoInicial")
+				|| c.equals("loa:temPrograma")
+				|| c.equals("loa:temFonteRecursos") || c.equals("loa:temGND")
+				|| c.equals("loa:temCategoriaEconomica")
+				|| c.equals("loa:temElementoDespesa")
+				|| c.equals("loa:valorEmpenhado")
+				|| c.equals("loa:temPlanoOrcamentario")
+				|| c.equals("loa:valorProjetoLei") || c.equals("loa:valorPago")
+				|| c.equals("loa:temResultadoPrimario")
+				|| c.equals("loa:temAcao") || c.equals("loa:temExercicio")
+				|| c.equals("loa:temEsfera") || c.equals("loa:temSubtitulo")
+
+		) {
 			query.append(c);
-		}if(c.equals("loa:label")){
+		}
+		if (c.equals("loa:label")) {
 			query.append("rdfs:label");
 		}
 		return query.toString();
@@ -172,14 +277,32 @@ public class SearchInRdf {
 			}
 		}
 		querySqlInsert.append(") VALUES (");
-		for(String v : valores){
+		for (String v : valores) {
 			querySqlInsert.append("'" + v + "'");
-			if(!(v.equals(valores.get(valores.size() - 1)))){
+			if (!(v.equals(valores.get(valores.size() - 1)))) {
 				querySqlInsert.append(", ");
 			}
 		}
 		querySqlInsert.append("); ");
 		return querySqlInsert.toString();
 	}
-	
+
+	public static void executaSql(String sql) {
+		// conectando
+		Connection con = new ConnectionFactory().getConnection();
+
+		// cria um preparedStatement
+		PreparedStatement stmt = null;
+		try {
+			stmt = con.prepareStatement(sql);
+			stmt.execute();
+			stmt.close();
+			con.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		System.out.println("Gravado!");
+	}
+
 }

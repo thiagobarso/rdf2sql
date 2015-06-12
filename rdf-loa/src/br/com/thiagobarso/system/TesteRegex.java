@@ -2,7 +2,7 @@ package br.com.thiagobarso.system;
 
 public class TesteRegex {
 
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		String trecho = new String();
 		trecho = "_cod_esfera";
 		
@@ -12,6 +12,6 @@ public class TesteRegex {
 			System.out.println("Não tem o regex");
 		}
 
-	}
+	}*/
 
 }
