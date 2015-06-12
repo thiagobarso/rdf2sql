@@ -1,8 +1,8 @@
 package br.com.thiagobarso.teste;
 
-import java.util.ArrayList;
+/*import java.util.ArrayList;
 
-import br.com.thiagobarso.service.SearchInRdf;
+import br.com.thiagobarso.service.SearchInRdf;*/
 
 public class TesteGetColunas {
 

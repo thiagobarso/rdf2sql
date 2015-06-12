@@ -4,20 +4,16 @@ import java.util.ArrayList;
 
 import br.com.thiagobarso.service.SearchInRdf;
 
-import com.hp.hpl.jena.query.*;
-import com.hp.hpl.jena.rdf.model.Literal;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.util.FileManager;
-
 public class DoRdf {
 
 	private static SearchInRdf search = new SearchInRdf();
 
 	public static void main(String[] args) {
 
-		String singleroot = "/rdf-timoteo/loa2015/loa2015.nt";
+		String singleroot = args[0];
+		if(singleroot == null){
+			System.out.print("Endereco do arquivo invalido");
+		}
 		ArrayList<String> tabelas = search.getTables(singleroot);
 		StringBuilder queryCriacao = new StringBuilder();
 		for (String t : tabelas) {

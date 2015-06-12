@@ -1,10 +1,10 @@
 package br.com.thiagobarso.system;
 
-import java.io.BufferedReader;
+/*import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.ObjectInputStream.GetField;
+import java.io.ObjectInputStream.GetField;*/
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

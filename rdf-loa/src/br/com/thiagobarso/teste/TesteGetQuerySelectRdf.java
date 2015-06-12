@@ -1,9 +1,5 @@
 package br.com.thiagobarso.teste;
 
-import java.util.ArrayList;
-
-import br.com.thiagobarso.service.SearchInRdf;
-
 public class TesteGetQuerySelectRdf {
 
 	/*public static void main(String[] args) {
