@@ -10,6 +10,7 @@ public class DoRdf {
 
 	public static void main(String[] args) {
 
+		try{
 		String singleroot = args[0];
 		if(singleroot == null){
 			System.out.print("Endereco do arquivo invalido");
@@ -24,6 +25,9 @@ public class DoRdf {
 			System.out.println("FIM SCRIPT DE BANCO fim_table: " + t
 					+ "=============================");
 			queryCriacao = new StringBuilder();
+		}
+		}catch(ArrayIndexOutOfBoundsException e){
+			System.out.println("Sem argumentos!!");
 		}
 
 	}
