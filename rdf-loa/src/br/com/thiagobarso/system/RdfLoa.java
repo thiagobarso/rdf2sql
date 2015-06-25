@@ -4,12 +4,12 @@ package br.com.thiagobarso.system;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.ObjectInputStream.GetField;*/
+import java.io.ObjectInputStream.GetField;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-
+*/
 public class RdfLoa {
 
 	/*public static void main(String[] args) {
@@ -75,7 +75,7 @@ public class RdfLoa {
 
 		//gerarSparql(tabelas, colunas);
 
-	}*/
+	}
 
 	private static void gerarSparql(ArrayList<String> tabelas,
 			ArrayList<String> colunas) {
@@ -186,5 +186,5 @@ public class RdfLoa {
 		sqlTable.append(");");
 
 		return sqlTable;
-	}
+	}*/
 }
