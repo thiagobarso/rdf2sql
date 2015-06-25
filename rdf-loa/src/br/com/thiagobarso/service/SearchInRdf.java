@@ -49,13 +49,9 @@ public class SearchInRdf {
 	}
 
 	public String getQueryCreateTable(String t, String singleroot) {
-		ArrayList<String> colunasPertencentesATabela = new ArrayList<String>();
-		System.out.println("==============================================");
-		System.out.println("Tabela: " + t);
+		ArrayList<String> colunasPertencentesATabela = new ArrayList<String>();		
 		colunasPertencentesATabela = getColunas(t, singleroot);
-		return criarTabela(t, colunasPertencentesATabela, singleroot).equals(
-				null) ? null : criarTabela(t, colunasPertencentesATabela,
-				singleroot).toString();
+		return criarTabela(t, colunasPertencentesATabela, singleroot).toString();
 	}
 
 	public ArrayList<String> getColunas(String t, String singleroot) {
@@ -94,10 +90,10 @@ public class SearchInRdf {
 
 		StringBuilder sqlTable = new StringBuilder();
 		sqlTable.append("CREATE TABLE ");
-		sqlTable.append(t);
+		sqlTable.append(t.replace("loa:", "").toLowerCase());
 		sqlTable.append(" ( ");
 		for (String c : colunasPertencentesATabela) {
-			sqlTable.append(c);
+			sqlTable.append(c.replace("loa:", "").toLowerCase());
 			sqlTable.append(" character varying(300) ");
 			if (c != colunasPertencentesATabela.get(colunasPertencentesATabela
 					.size() - 1)) {
@@ -105,15 +101,12 @@ public class SearchInRdf {
 			}
 		}
 		sqlTable.append(");");
-		sqlTable.append(getQuerySelectRdf(t, singleroot,
-				colunasPertencentesATabela));
-
 		return sqlTable;
 	}
 
 	public String getQuerySelectRdf(String tabela, String singleroot,
 			ArrayList<String> colunas) {
-		System.out.println("=================Começando - getQuerySelectRdf");
+		System.out.println("=================Começando - getQuerySelectRdf - tabela:" + tabela);
 		StringBuilder querySqlInsert = new StringBuilder();
 		Model model = FileManager.get().loadModel(singleroot);
 		StringBuilder queryString = new StringBuilder();
@@ -150,16 +143,7 @@ public class SearchInRdf {
 				for (String c : colunas) {
 					RDFNode x = soln.get("?"
 							+ c.toLowerCase().replace("loa:", ""));
-					if (!x.equals(null)) {
-						System.out
-								.println("Resource NODE: "
-										+ x.toString()
-												.replace(
-														"^^http://www.w3.org/2001/XMLSchema#decimal",
-														"")
-												.replace(
-														"^^http://www.w3.org/2001/XMLSchema#integer",
-														""));
+					if (!x.equals(null)) {						
 						valores.add(x
 								.toString()
 								.replace(
@@ -170,11 +154,11 @@ public class SearchInRdf {
 										""));
 					}
 				}
-			querySqlInsert.append(createInsertSql(tabela, colunas, valores));
+		    querySqlInsert.append(createInsertSql(tabela, colunas, valores));
 			valores.clear();
 			}			
 		}
-		System.out.println("=================Terminando - getQuerySelectRdf");
+		System.out.println("=================Terminando - getQuerySelectRdf - tabela: " + tabela);
 		return querySqlInsert.toString();
 	}
 
@@ -265,9 +249,9 @@ public class SearchInRdf {
 			ArrayList<String> valores) {
 		StringBuilder querySqlInsert = new StringBuilder();
 		querySqlInsert
-				.append("INSERT INTO " + tabela.replace("loa:", "") + "(");
+				.append("INSERT INTO " + tabela.replace("loa:", "").toLowerCase() + "(");
 		for (String c : colunas) {
-			querySqlInsert.append(c.replace("loa:", ""));
+			querySqlInsert.append(c.replace("loa:", "").toLowerCase());
 			if (!(c.equals(colunas.get(colunas.size() - 1)))) {
 				querySqlInsert.append(", ");
 			}
@@ -279,7 +263,7 @@ public class SearchInRdf {
 				querySqlInsert.append(", ");
 			}
 		}
-		querySqlInsert.append("); ");
+		querySqlInsert.append(");end;; ");
 		return querySqlInsert.toString();
 	}
 
