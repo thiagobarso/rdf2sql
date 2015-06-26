@@ -4,7 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+
 import br.com.thiagobarso.system.ConnectionFactory;
+
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
@@ -49,9 +51,10 @@ public class SearchInRdf {
 	}
 
 	public String getQueryCreateTable(String t, String singleroot) {
-		ArrayList<String> colunasPertencentesATabela = new ArrayList<String>();		
+		ArrayList<String> colunasPertencentesATabela = new ArrayList<String>();
 		colunasPertencentesATabela = getColunas(t, singleroot);
-		return criarTabela(t, colunasPertencentesATabela, singleroot).toString();
+		return criarTabela(t, colunasPertencentesATabela, singleroot)
+				.toString();
 	}
 
 	public ArrayList<String> getColunas(String t, String singleroot) {
@@ -85,10 +88,10 @@ public class SearchInRdf {
 		return result;
 	}
 
-	private StringBuilder criarTabela(String t,
+	private StringBuffer criarTabela(String t,
 			ArrayList<String> colunasPertencentesATabela, String singleroot) {
 
-		StringBuilder sqlTable = new StringBuilder();
+		StringBuffer sqlTable = new StringBuffer();
 		sqlTable.append("CREATE TABLE ");
 		sqlTable.append(t.replace("loa:", "").toLowerCase());
 		sqlTable.append(" ( ");
@@ -104,10 +107,13 @@ public class SearchInRdf {
 		return sqlTable;
 	}
 
-	public String getQuerySelectRdf(String tabela, String singleroot,
+	public void getQuerySelectRdf(String tabela, String singleroot,
 			ArrayList<String> colunas) {
-		System.out.println("=================Começando - getQuerySelectRdf - tabela:" + tabela);
-		StringBuilder querySqlInsert = new StringBuilder();
+		System.out
+				.println("=================Começando - getQuerySelectRdf - tabela:"
+						+ tabela);
+		StringBuffer querySqlInsert = new StringBuffer();
+		querySqlInsert.append(createBeginInsert(tabela, colunas));
 		Model model = FileManager.get().loadModel(singleroot);
 		StringBuilder queryString = new StringBuilder();
 		queryString
@@ -138,12 +144,13 @@ public class SearchInRdf {
 		try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
 			ResultSet results = qexec.execSelect();
 			ArrayList<String> valores = new ArrayList<String>();
+			int i = 0;
 			for (; results.hasNext();) {
 				QuerySolution soln = results.nextSolution();
 				for (String c : colunas) {
 					RDFNode x = soln.get("?"
 							+ c.toLowerCase().replace("loa:", ""));
-					if (!x.equals(null)) {						
+					if (!x.equals(null)) {
 						valores.add(x
 								.toString()
 								.replace(
@@ -154,12 +161,22 @@ public class SearchInRdf {
 										""));
 					}
 				}
-		    querySqlInsert.append(createInsertSql(tabela, colunas, valores));
-			valores.clear();
-			}			
+				querySqlInsert
+						.append(createFinalInsert(valores));
+				i++;
+				if ((i % 1000) == 0) {
+					executaSql(querySqlInsert.deleteCharAt(querySqlInsert.length()-1).append(";").toString());
+					querySqlInsert = new StringBuffer();				
+					querySqlInsert.append(createBeginInsert(tabela, colunas));
+					i = 0;
+				}
+				valores.clear();
+			}
+			executaSql(querySqlInsert.deleteCharAt(querySqlInsert.length()-1).append(";").toString());
 		}
-		System.out.println("=================Terminando - getQuerySelectRdf - tabela: " + tabela);
-		return querySqlInsert.toString();
+		System.out
+				.println("=================Terminando - getQuerySelectRdf - tabela: "
+						+ tabela);		
 	}
 
 	public String getWhereRdf(String c, ArrayList<String> colunas) {
@@ -244,26 +261,35 @@ public class SearchInRdf {
 		}
 		return query.toString();
 	}
-
-	public String createInsertSql(String tabela, ArrayList<String> colunas,
-			ArrayList<String> valores) {
-		StringBuilder querySqlInsert = new StringBuilder();
-		querySqlInsert
-				.append("INSERT INTO " + tabela.replace("loa:", "").toLowerCase() + "(");
+	
+	public StringBuffer createBeginInsert(String tabela,
+			ArrayList<String> colunas) {
+		StringBuffer querySqlInsert = new StringBuffer();
+		querySqlInsert.append("INSERT INTO "
+				+ tabela.replace("loa:", "").toLowerCase() + "(");
 		for (String c : colunas) {
 			querySqlInsert.append(c.replace("loa:", "").toLowerCase());
 			if (!(c.equals(colunas.get(colunas.size() - 1)))) {
 				querySqlInsert.append(", ");
 			}
 		}
-		querySqlInsert.append(") VALUES (");
+		querySqlInsert.append(") VALUES ");
+		return querySqlInsert;
+	}
+
+	public String createFinalInsert(ArrayList<String> valores) {
+		StringBuilder querySqlInsert = new StringBuilder();
+		querySqlInsert.append("(");
+		int i = 0;
 		for (String v : valores) {
 			querySqlInsert.append("'" + v + "'");
-			if (!(v.equals(valores.get(valores.size() - 1)))) {
-				querySqlInsert.append(", ");
+			if(i == valores.size()-1){
+				querySqlInsert.append("),");
+			}else{
+				querySqlInsert.append(",");
 			}
-		}
-		querySqlInsert.append(");end;; ");
+			i++;
+		}		
 		return querySqlInsert.toString();
 	}
 
