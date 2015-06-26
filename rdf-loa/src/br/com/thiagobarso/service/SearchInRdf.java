@@ -39,8 +39,7 @@ public class SearchInRdf {
 				Resource r = soln.getResource("nome");
 				if (!(r.getLocalName().equals("Class")
 						|| r.getLocalName().equals("Property") || r
-						.getLocalName().equals("Exercicio"))) {
-					System.out.println("loa:" + r.getLocalName());
+						.getLocalName().equals("Exercicio"))) {					
 					result.add("loa:" + r.getLocalName());
 				}
 			}
@@ -166,7 +165,7 @@ public class SearchInRdf {
 				i++;
 				if ((i % 1000) == 0) {
 					executaSql(querySqlInsert.deleteCharAt(querySqlInsert.length()-1).append(";").toString());
-					querySqlInsert = new StringBuffer();				
+					querySqlInsert.delete(0, querySqlInsert.length() -1);				
 					querySqlInsert.append(createBeginInsert(tabela, colunas));
 					i = 0;
 				}
