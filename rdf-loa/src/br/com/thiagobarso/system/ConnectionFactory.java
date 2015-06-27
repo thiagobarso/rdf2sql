@@ -16,7 +16,7 @@ public class ConnectionFactory {
 			return DriverManager.getConnection("jdbc:postgresql://"+host+":"+ porta +"/" + banco,
 					usuario, senha);
 		} catch (Exception e) {
-			System.out.println("Ops!Algo deu errado");
+			System.out.println("Ops!Algo deu errado com a conexao da aplciação com o banco de dados!");
 			throw new RuntimeException(e);
 		}
 	}

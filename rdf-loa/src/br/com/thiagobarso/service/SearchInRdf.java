@@ -168,10 +168,12 @@ public class SearchInRdf {
 					querySqlInsert.delete(0, querySqlInsert.length() -1);				
 					querySqlInsert.append(createBeginInsert(tabela, colunas));
 					i = 0;
+					System.gc();
 				}
-				valores.clear();
+				valores.clear();				
 			}
 			executaSql(querySqlInsert.deleteCharAt(querySqlInsert.length()-1).append(";").toString());
+			System.gc();
 		}
 		System.out
 				.println("=================Terminando - getQuerySelectRdf - tabela: "
@@ -328,6 +330,4 @@ public class SearchInRdf {
 
 		System.out.println("Conectado com sucesso!");
 	}
-
-
 }
