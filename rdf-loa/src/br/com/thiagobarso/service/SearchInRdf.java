@@ -309,5 +309,25 @@ public class SearchInRdf {
 
 		System.out.println("Gravado!");
 	}
+	
+	public void testeConexao() {
+		System.out.println("Teste de conexao com banco");
+		// conectando
+		Connection con = new ConnectionFactory().getConnection();
+
+		// cria um preparedStatement
+		PreparedStatement stmt = null;
+		try {
+			stmt = con.prepareStatement("SELECT 1");
+			stmt.execute();
+			stmt.close();
+			con.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		System.out.println("Conectado com sucesso!");
+	}
+
 
 }
