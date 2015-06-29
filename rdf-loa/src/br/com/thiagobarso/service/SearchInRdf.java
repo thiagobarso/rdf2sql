@@ -162,6 +162,7 @@ public class SearchInRdf {
 										"^^http://www.w3.org/2001/XMLSchema#integer",
 										""));
 					}
+					x = null;
 				}
 				querySqlInsert
 						.append(createFinalInsert(valores));
