@@ -1,9 +1,12 @@
 package br.com.thiagobarso.service;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Properties;
 
 import br.com.thiagobarso.system.ConnectionFactory;
 
@@ -329,5 +332,26 @@ public class SearchInRdf {
 		}
 
 		System.out.println("Conectado com sucesso!");
+	}
+	
+	public Properties getProp() throws IOException {
+		Properties props = new Properties();
+		FileInputStream file = new FileInputStream("./dados.properties");
+		props.load(file);
+		return props;
+	}
+	
+	public String getArquivoRdf() {
+		String arquivoRdf = new String();
+		try {
+			Properties prop = getProp();
+			arquivoRdf = prop.getProperty("prop.server.arquivo.rdf");
+		} catch (IOException e) {
+			System.out
+					.println("Ops!Algo deu errado com o nome da localização do arquivo rdf! ");
+			System.out.println("Reveja o arquivo dados.properties");
+			e.printStackTrace();
+		}
+		return arquivoRdf;
 	}
 }

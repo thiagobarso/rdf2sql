@@ -6,7 +6,11 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import br.com.thiagobarso.service.SearchInRdf;
+
 public class ConnectionFactory {
+	private static SearchInRdf search = new SearchInRdf();
+	
 	public Connection getConnection() {
 		String banco = null;
 		String usuario = null;
@@ -14,8 +18,8 @@ public class ConnectionFactory {
 		String host = null;
 		String porta = null;
 
-		try {
-			Properties prop = DoRdf.getProp();
+		try {			
+			Properties prop = search.getProp();
 			banco = prop.getProperty("prop.server.banco");
 			usuario = prop.getProperty("prop.server.usuario");
 			senha = prop.getProperty("prop.server.senha");
