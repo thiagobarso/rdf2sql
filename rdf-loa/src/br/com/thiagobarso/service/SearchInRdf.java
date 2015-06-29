@@ -169,13 +169,13 @@ public class SearchInRdf {
 				i++;
 				if ((i % 1000) == 0) {
 					executaSql(querySqlInsert.deleteCharAt(querySqlInsert.length()-1).append(";").toString());
-					querySqlInsert.delete(0, querySqlInsert.length() -1);				
+					querySqlInsert.delete(0, querySqlInsert.length());				
 					querySqlInsert.append(createBeginInsert(tabela, colunas));
 					i = 0;
 					System.gc();
 				}
 				valores.clear();				
-			}
+			}			
 			executaSql(querySqlInsert.deleteCharAt(querySqlInsert.length()-1).append(";").toString());
 			System.gc();
 		}
@@ -287,7 +287,7 @@ public class SearchInRdf {
 		querySqlInsert.append("(");
 		int i = 0;
 		for (String v : valores) {
-			querySqlInsert.append("'" + v + "'");
+			querySqlInsert.append("'" + v.replace("'", "''") + "'");
 			if(i == valores.size()-1){
 				querySqlInsert.append("),");
 			}else{
