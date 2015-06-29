@@ -11,9 +11,10 @@ public class TesteGetQuerySelectRdf {
 
 	public static void main(String[] args) {
 		String root = search.getArquivoRdf();
-		String tabela = "loa:Acao";
+		String tabela = "loa:FonteRecursos";
 		ArrayList<String> colunasPertencentesATabela = search.getColunas(tabela,
 				root);
 		search.getQuerySelectRdf(tabela, root, colunasPertencentesATabela);				
-	}*/
+	}
+*/
 }

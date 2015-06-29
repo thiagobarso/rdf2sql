@@ -187,6 +187,7 @@ public class SearchInRdf {
 	public String getWhereRdf(String c, ArrayList<String> colunas) {
 		StringBuilder queryString = new StringBuilder();
 		if (c.equals("loa:temIdentificadorUso")
+				|| c.equals("loa:temOrgao")
 				|| c.equals("loa:temModalidadeAplicacao")
 				|| c.equals("loa:temUnidadeOrcamentaria")
 				|| c.equals("loa:temSubfuncao") || c.equals("loa:temFuncao")
@@ -212,6 +213,7 @@ public class SearchInRdf {
 					+ "?" + c.toLowerCase().replace("loa:", ""));
 		}
 		if (!(c.equals("loa:temIdentificadorUso")
+				|| c.equals("loa:temOrgao")
 				|| c.equals("loa:temExercicio")
 				|| c.equals("loa:temModalidadeAplicacao")
 				|| c.equals("loa:temUnidadeOrcamentaria")
@@ -240,6 +242,7 @@ public class SearchInRdf {
 	public String getPredicate(String c) {
 		StringBuilder query = new StringBuilder();
 		if (c.equals("loa:codigo") || c.equals("loa:identificador")
+				|| c.equals("loa:temOrgao")
 				|| c.equals("loa:temIdentificadorUso")
 				|| c.equals("loa:valorLeiMaisCredito")
 				|| c.equals("loa:temModalidadeAplicacao")
