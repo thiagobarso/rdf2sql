@@ -29,12 +29,16 @@ public class DoRdf {
 			}
 			for (String t : tabelas) {
 				String root = search.getArquivoRdf();
-				ArrayList<String> colunasPertencentesATabela = search
-						.getColunas(t, root);
-				search.getQuerySelectRdf(t, root, colunasPertencentesATabela);
-				root = null;
-				colunasPertencentesATabela = null;
-				System.gc();
+				int countTabela = search.getQueryCountRdf(t, root);
+				int loopRegistros = search.getLoopRegistros(countTabela);				
+				for(int i=1; i <= loopRegistros ; i++){
+					ArrayList<String> colunasPertencentesATabela = search
+							.getColunas(t, root);				
+					search.getQuerySelectRdf(t, root, colunasPertencentesATabela,i);
+					root = null;
+					colunasPertencentesATabela = null;
+					System.gc();
+				}				
 			}
 
 		} catch (ArrayIndexOutOfBoundsException e) {

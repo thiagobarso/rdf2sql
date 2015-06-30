@@ -110,7 +110,7 @@ public class SearchInRdf {
 	}
 
 	public void getQuerySelectRdf(String tabela, String singleroot,
-			ArrayList<String> colunas) {
+			ArrayList<String> colunas, int offset) {
 		System.out
 				.println("=================Começando - getQuerySelectRdf - tabela:"
 						+ tabela);
@@ -124,7 +124,7 @@ public class SearchInRdf {
 		queryString.append("PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> ");
 		queryString
 				.append("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ");
-		queryString.append("SELECT distinct ");
+		queryString.append("SELECT ");
 		for (String c : colunas) {
 			queryString.append("?" + c.toLowerCase().replace("loa:", "") + " ");
 		}
@@ -142,6 +142,10 @@ public class SearchInRdf {
 				+ " a " + tabela);
 		queryString.append(". ");
 		queryString.append("} ");
+		queryString.append("LIMIT 200000 ");
+		if(offset > 1){
+			queryString.append(getOffset(offset - 1 ));
+		}
 		Query query = QueryFactory.create(queryString.toString());
 		try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
 			ResultSet results = qexec.execSelect();
@@ -175,13 +179,19 @@ public class SearchInRdf {
 					System.gc();
 				}
 				valores.clear();				
-			}			
-			executaSql(querySqlInsert.deleteCharAt(querySqlInsert.length()-1).append(";").toString());
-			System.gc();
+			}
+			if(!querySqlInsert.toString().endsWith("VALUES ")){
+				executaSql(querySqlInsert.deleteCharAt(querySqlInsert.length()-1).append(";").toString());
+				System.gc();
+			}
 		}
 		System.out
 				.println("=================Terminando - getQuerySelectRdf - tabela: "
 						+ tabela);		
+	}
+
+	public String getOffset(int offset) {		
+		return "OFFSET " + offset * 200000 ;
 	}
 
 	public String getWhereRdf(String c, ArrayList<String> colunas) {
@@ -357,5 +367,47 @@ public class SearchInRdf {
 			e.printStackTrace();
 		}
 		return arquivoRdf;
+	}
+
+	public int getQueryCountRdf(String tabela, String root) {
+		int retorno = 0;
+		Model model = FileManager.get().loadModel(root);
+		StringBuilder queryString = new StringBuilder();
+		queryString
+				.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> ");
+		queryString.append("PREFIX loa: <http://vocab.e.gov.br/2013/09/loa#> ");
+		queryString.append("PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> ");
+		queryString
+				.append("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ");
+		queryString.append("SELECT (COUNT(");
+		queryString.append("?" + tabela.toLowerCase().replace("loa:", ""));
+		queryString.append(") as ?total) ");
+		queryString.append("WHERE { ");
+		queryString.append("?" + tabela.toLowerCase().replace("loa:", ""));
+		queryString.append(" rdf:type ");
+		queryString.append(tabela + ".");
+		queryString.append("}");
+		Query query = QueryFactory.create(queryString.toString());
+		try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
+			ResultSet results = qexec.execSelect();			
+			for (; results.hasNext();) {
+				QuerySolution soln = results.nextSolution();
+				RDFNode x = soln.get("?total");
+				retorno = (int) Integer.parseInt(x.toString().replace("^^http://www.w3.org/2001/XMLSchema#integer", ""));
+			}			
+		}		
+		return retorno;
+	}
+
+	public int getLoopRegistros(int i) {
+		int divisao = i / 200000;
+		int modulo = i % 200000;
+		int retorno;
+		if(modulo > 0){
+			retorno = divisao + 1;
+		}else{
+			retorno = divisao;
+		}
+		return retorno;
 	}
 }
