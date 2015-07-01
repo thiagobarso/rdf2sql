@@ -23,22 +23,20 @@ public class DoRdf {
 				System.out.println("inicio_criação_tabela: " + t);
 				SearchInRdf.executaSql(queryCriacao.toString());
 				System.out.println("fim_criação_tabela: " + t);
-				root=null;
+				root = null;
 				queryCriacao = null;
 				System.gc();
 			}
 			for (String t : tabelas) {
 				String root = search.getArquivoRdf();
-				int countTabela = search.getQueryCountRdf(t, root);
-				int loopRegistros = search.getLoopRegistros(countTabela);				
-				for(int i=1; i <= loopRegistros ; i++){
-					ArrayList<String> colunasPertencentesATabela = search
-							.getColunas(t, root);				
-					search.getQuerySelectRdf(t, root, colunasPertencentesATabela,i);
-					root = null;
-					colunasPertencentesATabela = null;
-					System.gc();
-				}				
+				int countTabela = search.getQueryCountRdf(t, root);				
+				System.out.println("Tabela " + t +" contem "  + countTabela + "registros.");
+				ArrayList<String> colunasPertencentesATabela = search
+						.getColunas(t, root);
+				search.getQuerySelectRdf(t, root, colunasPertencentesATabela);
+				root = null;
+				colunasPertencentesATabela = null;
+				System.gc();
 			}
 
 		} catch (ArrayIndexOutOfBoundsException e) {

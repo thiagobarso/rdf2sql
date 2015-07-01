@@ -1,7 +1,6 @@
 package br.com.thiagobarso.teste;
-
+/*
 import java.util.ArrayList;
-
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
@@ -11,11 +10,10 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.util.FileManager;
-
 import br.com.thiagobarso.service.SearchInRdf;
-
+*/
 public class TesteGetQuerySelectRdf {
-
+/*
 	private static SearchInRdf search = new SearchInRdf();
 
 	public static void main(String[] args) {
@@ -23,16 +21,8 @@ public class TesteGetQuerySelectRdf {
 		String root = search.getArquivoRdf();
 		ArrayList<String> colunasPertencentesATabela = getColunas();
 		int countTabela = search.getQueryCountRdf(t, root);
-		int loopRegistros = search.getLoopRegistros(countTabela);
-		if (loopRegistros > 0) {
-			for (int i = 1; i <= loopRegistros; i++) {
-				search.getQuerySelectRdf(t, root, colunasPertencentesATabela, i);
-				System.gc();
-			}
-		} else {
-			search.getQuerySelectRdf(t, root, colunasPertencentesATabela, 0);
-			System.gc();
-		}		
+		search.getQuerySelectRdf(t, root, colunasPertencentesATabela);
+		System.gc();				
 	}
 
 	private static ArrayList<String> getColunas() {
@@ -104,5 +94,5 @@ public class TesteGetQuerySelectRdf {
 			}
 			System.out.println("Valores:" + i);
 		}
-	}
+	}*/
 }

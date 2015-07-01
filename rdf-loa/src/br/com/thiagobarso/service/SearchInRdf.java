@@ -34,7 +34,7 @@ public class SearchInRdf {
 				+ "WHERE { "
 				+ " [] rdf:type ?nome . " + "} ";
 		Query query = QueryFactory.create(queryString);
-		System.out.println("Função: getTables()");
+		System.out.println("Pegando Tabelas:");
 		try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
 			ResultSet results = qexec.execSelect();
 			for (; results.hasNext();) {
@@ -72,6 +72,7 @@ public class SearchInRdf {
 				+ t
 				+ " ." + " ?i ?property ?value . " + "} ";
 		Query query = QueryFactory.create(queryString);
+		System.out.println("Propriedades encontradas para tabela: " + t);
 		try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
 			ResultSet results = qexec.execSelect();
 			for (; results.hasNext();) {
@@ -110,7 +111,7 @@ public class SearchInRdf {
 	}
 
 	public void getQuerySelectRdf(String tabela, String singleroot,
-			ArrayList<String> colunas, int offset) {
+			ArrayList<String> colunas) {
 		System.out
 				.println("=================Começando - getQuerySelectRdf - tabela:"
 						+ tabela);
@@ -142,10 +143,6 @@ public class SearchInRdf {
 				+ " a " + tabela);
 		queryString.append(". ");
 		queryString.append("} ");
-		queryString.append("LIMIT 200000 ");
-		if(offset > 1){
-			queryString.append(getOffset(offset - 1 ));
-		}
 		Query query = QueryFactory.create(queryString.toString());
 		try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
 			ResultSet results = qexec.execSelect();
@@ -180,10 +177,8 @@ public class SearchInRdf {
 				}
 				valores.clear();				
 			}
-			if(!querySqlInsert.toString().endsWith("VALUES ")){
-				executaSql(querySqlInsert.deleteCharAt(querySqlInsert.length()-1).append(";").toString());
-				System.gc();
-			}
+			executaSql(querySqlInsert.deleteCharAt(querySqlInsert.length()-1).append(";").toString());
+			System.gc();			
 		}
 		System.out
 				.println("=================Terminando - getQuerySelectRdf - tabela: "
