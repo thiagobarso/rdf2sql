@@ -321,7 +321,7 @@ public class SearchInRdf {
 			e.printStackTrace();
 		}
 
-		System.out.println("Gravado!");
+		System.out.print("."); // Gravado no banco de dados.
 	}
 	
 	public void testeConexao() {
