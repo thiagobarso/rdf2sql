@@ -304,6 +304,7 @@ public class SearchInRdf {
 			i++;
 		}		
 		return querySqlInsert.toString();
+		//teste
 	}
 
 	public static void executaSql(String sql) {
