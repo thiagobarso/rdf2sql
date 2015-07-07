@@ -1,10 +1,10 @@
 package br.com.thiagobarso.teste;
 
-import br.com.thiagobarso.service.SearchInRdf;
+/*import br.com.thiagobarso.service.SearchInRdf;*/
 
 public class TesteGetQueryCreateTable {
 
-	private static SearchInRdf search = new SearchInRdf();
+/*	private static SearchInRdf search = new SearchInRdf();
 	
 	public static void main(String[] args) {
 		String t = "loa:Exercicio";
@@ -14,5 +14,5 @@ public class TesteGetQueryCreateTable {
 		SearchInRdf.executaSql(queryCriacao.toString());
 		System.gc();	
 	}
-
+*/
 }

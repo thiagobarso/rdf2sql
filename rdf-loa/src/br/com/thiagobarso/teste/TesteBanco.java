@@ -1,6 +1,6 @@
 package br.com.thiagobarso.teste;
 
-import java.util.ArrayList;
+/*import java.util.ArrayList;
 
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
@@ -12,10 +12,10 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 //import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.util.FileManager;
-
+*/
 public class TesteBanco {
 
-	public String getQuerySelectRdf(String tabela, String singleroot,
+/*	public String getQuerySelectRdf(String tabela, String singleroot,
 			ArrayList<String> colunas) {
 		System.out
 				.println("=================Começando - getQuerySelectRdf - TESTEBANCO");
@@ -72,6 +72,6 @@ public class TesteBanco {
 		}
 		querySqlInsert.append("); ");
 		return querySqlInsert.toString();
-	}
+	}*/
 
 }

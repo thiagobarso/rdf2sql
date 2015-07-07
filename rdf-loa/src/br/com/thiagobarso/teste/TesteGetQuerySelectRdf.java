@@ -1,11 +1,11 @@
 package br.com.thiagobarso.teste;
 
-import java.util.ArrayList;
+/*import java.util.ArrayList;
 
-import br.com.thiagobarso.service.SearchInRdf;
+import br.com.thiagobarso.service.SearchInRdf;*/
 
 public class TesteGetQuerySelectRdf {
-
+/*
 	private static SearchInRdf search = new SearchInRdf();
 
 	public static void main(String[] args) {
@@ -22,5 +22,5 @@ public class TesteGetQuerySelectRdf {
 		colunas.add("loa:dataUltimaAtualizacao");
 		return colunas;
 	}
-	
+	*/
 }
