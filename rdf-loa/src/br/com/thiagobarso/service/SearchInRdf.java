@@ -40,9 +40,8 @@ public class SearchInRdf {
 			for (; results.hasNext();) {
 				QuerySolution soln = results.nextSolution();
 				Resource r = soln.getResource("nome");
-				if (!(r.getLocalName().equals("Class")
-						|| r.getLocalName().equals("Property") || r
-						.getLocalName().equals("Exercicio"))) {					
+				if (!(r.getLocalName().equals("Class") || r.getLocalName()
+						.equals("Property"))) {
 					result.add("loa:" + r.getLocalName());
 				}
 			}
@@ -161,38 +160,42 @@ public class SearchInRdf {
 										"")
 								.replace(
 										"^^http://www.w3.org/2001/XMLSchema#integer",
+										"")
+								.replace(
+										"^^http://www.w3.org/2001/XMLSchema#dateTime",
 										""));
 					}
 					x = null;
 				}
-				querySqlInsert
-						.append(createFinalInsert(valores));
+				querySqlInsert.append(createFinalInsert(valores));
 				i++;
 				if ((i % 1000) == 0) {
-					executaSql(querySqlInsert.deleteCharAt(querySqlInsert.length()-1).append(";").toString());
-					querySqlInsert.delete(0, querySqlInsert.length());				
+					executaSql(querySqlInsert
+							.deleteCharAt(querySqlInsert.length() - 1)
+							.append(";").toString());
+					querySqlInsert.delete(0, querySqlInsert.length());
 					querySqlInsert.append(createBeginInsert(tabela, colunas));
 					i = 0;
 					System.gc();
 				}
-				valores.clear();				
+				valores.clear();
 			}
-			executaSql(querySqlInsert.deleteCharAt(querySqlInsert.length()-1).append(";").toString());
-			System.gc();			
+			executaSql(querySqlInsert.deleteCharAt(querySqlInsert.length() - 1)
+					.append(";").toString());
+			System.gc();
 		}
 		System.out
 				.println("=================Terminando - getQuerySelectRdf - tabela: "
-						+ tabela);		
+						+ tabela);
 	}
 
-	public String getOffset(int offset) {		
-		return "OFFSET " + offset * 200000 ;
+	public String getOffset(int offset) {
+		return "OFFSET " + offset * 200000;
 	}
 
 	public String getWhereRdf(String c, ArrayList<String> colunas) {
 		StringBuilder queryString = new StringBuilder();
-		if (c.equals("loa:temIdentificadorUso")
-				|| c.equals("loa:temOrgao")
+		if (c.equals("loa:temIdentificadorUso") || c.equals("loa:temOrgao")
 				|| c.equals("loa:temModalidadeAplicacao")
 				|| c.equals("loa:temUnidadeOrcamentaria")
 				|| c.equals("loa:temSubfuncao") || c.equals("loa:temFuncao")
@@ -217,8 +220,7 @@ public class SearchInRdf {
 			queryString.append("?" + colunas.indexOf(c) + " loa:identificador "
 					+ "?" + c.toLowerCase().replace("loa:", ""));
 		}
-		if (!(c.equals("loa:temIdentificadorUso")
-				|| c.equals("loa:temOrgao")
+		if (!(c.equals("loa:temIdentificadorUso") || c.equals("loa:temOrgao")
 				|| c.equals("loa:temExercicio")
 				|| c.equals("loa:temModalidadeAplicacao")
 				|| c.equals("loa:temUnidadeOrcamentaria")
@@ -265,6 +267,7 @@ public class SearchInRdf {
 				|| c.equals("loa:temResultadoPrimario")
 				|| c.equals("loa:temAcao") || c.equals("loa:temExercicio")
 				|| c.equals("loa:temEsfera") || c.equals("loa:temSubtitulo")
+				|| c.equals("loa:dataUltimaAtualizacao")
 
 		) {
 			query.append(c);
@@ -274,7 +277,7 @@ public class SearchInRdf {
 		}
 		return query.toString();
 	}
-	
+
 	public StringBuffer createBeginInsert(String tabela,
 			ArrayList<String> colunas) {
 		StringBuffer querySqlInsert = new StringBuffer();
@@ -296,15 +299,15 @@ public class SearchInRdf {
 		int i = 0;
 		for (String v : valores) {
 			querySqlInsert.append("'" + v.replace("'", "''") + "'");
-			if(i == valores.size()-1){
+			if (i == valores.size() - 1) {
 				querySqlInsert.append("),");
-			}else{
+			} else {
 				querySqlInsert.append(",");
 			}
 			i++;
-		}		
+		}
 		return querySqlInsert.toString();
-		//teste
+		// teste
 	}
 
 	public static void executaSql(String sql) {
@@ -324,7 +327,7 @@ public class SearchInRdf {
 
 		System.out.print("."); // Gravado no banco de dados.
 	}
-	
+
 	public void testeConexao() {
 		System.out.println("Teste de conexao com banco");
 		// conectando
@@ -343,14 +346,14 @@ public class SearchInRdf {
 
 		System.out.println("Conectado com sucesso!");
 	}
-	
+
 	public Properties getProp() throws IOException {
 		Properties props = new Properties();
 		FileInputStream file = new FileInputStream("./dados.properties");
 		props.load(file);
 		return props;
 	}
-	
+
 	public String getArquivoRdf() {
 		String arquivoRdf = new String();
 		try {
@@ -385,13 +388,14 @@ public class SearchInRdf {
 		queryString.append("}");
 		Query query = QueryFactory.create(queryString.toString());
 		try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
-			ResultSet results = qexec.execSelect();			
+			ResultSet results = qexec.execSelect();
 			for (; results.hasNext();) {
 				QuerySolution soln = results.nextSolution();
 				RDFNode x = soln.get("?total");
-				retorno = (int) Integer.parseInt(x.toString().replace("^^http://www.w3.org/2001/XMLSchema#integer", ""));
-			}			
-		}		
+				retorno = (int) Integer.parseInt(x.toString().replace(
+						"^^http://www.w3.org/2001/XMLSchema#integer", ""));
+			}
+		}
 		return retorno;
 	}
 
@@ -399,9 +403,9 @@ public class SearchInRdf {
 		int divisao = i / 200000;
 		int modulo = i % 200000;
 		int retorno;
-		if(modulo > 0){
+		if (modulo > 0) {
 			retorno = divisao + 1;
-		}else{
+		} else {
 			retorno = divisao;
 		}
 		return retorno;
