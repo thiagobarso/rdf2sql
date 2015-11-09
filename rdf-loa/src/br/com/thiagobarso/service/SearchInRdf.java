@@ -1,14 +1,11 @@
 package br.com.thiagobarso.service;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
@@ -112,7 +109,7 @@ public class SearchInRdf {
 	}
 
 	public void getQuerySelectRdf(String tabela, String singleroot,
-			ArrayList<String> colunas,Map<String,String> config) {
+			ArrayList<String> colunas, Map<String, String> config) {
 		System.out
 				.println("=================Começando - getQuerySelectRdf - tabela:"
 						+ tabela);
@@ -172,9 +169,10 @@ public class SearchInRdf {
 				querySqlInsert.append(createFinalInsert(valores));
 				i++;
 				if ((i % 1000) == 0) {
-					executaSql(querySqlInsert
-							.deleteCharAt(querySqlInsert.length() - 1)
-							.append(";").toString(),config);
+					executaSql(
+							querySqlInsert
+									.deleteCharAt(querySqlInsert.length() - 1)
+									.append(";").toString(), config);
 					querySqlInsert.delete(0, querySqlInsert.length());
 					querySqlInsert.append(createBeginInsert(tabela, colunas));
 					i = 0;
@@ -183,7 +181,7 @@ public class SearchInRdf {
 				valores.clear();
 			}
 			executaSql(querySqlInsert.deleteCharAt(querySqlInsert.length() - 1)
-					.append(";").toString(),config);
+					.append(";").toString(), config);
 			System.gc();
 		}
 		System.out
@@ -349,29 +347,56 @@ public class SearchInRdf {
 		System.out.println("Conectado com sucesso!");
 	}
 
-	public Map<String,String> getProp(String[] args) throws Exception {
+	public Map<String, String> getProp(String[] args) throws Exception {
 		Map<String, String> configuracao = new HashMap<String, String>();
+		if (args.length > 0) {
+			for (String arg : args) {
+				if (arg.contains("--help")) {
+					System.out.println(".::RDF2RDB::.");
+					System.out.println("To run execute:");
+					System.out.println(" ");
+					System.out
+							.println("java -jar -Xmx<number_max_memory>m /path/to/rdftorbd.jar --prop.config.file=/path/to/file.nt --prop.config.host=<host> --prop.config.user=<user> --prop.config.password=<password> --prop.config.database=<database>");
+					System.out.println(" ");
+					System.out.println("Args opcionals:");
+					System.out.println("--prop.config.port=<port>");
+					System.out.println(" ");
+					System.out.println("Args required:");
+					System.out.println("--prop.config.user=<user_of_database>");
+					System.out.println("--prop.config.password=<password>");
+					System.out.println("--prop.config.database=<database>");
+					System.out.println("--prop.config.file=<file>");
 
-		for (String arg : args) {			
-			if (arg.contains("--prop.config.host")
-					|| arg.contains("--prop.config.user")
-					|| arg.contains("--prop.config.password")
-					|| arg.contains("--prop.config.database")
-					|| arg.contains("--prop.config.port")
-					|| arg.contains("--prop.config.file")) {
-				try {
-					String[] argumentosValor = arg.split("=");
-					String valor = argumentosValor[1];
-					String[] argumentosChave = argumentosValor[0].split("\\.");
-					String chave = argumentosChave[2];
-					configuracao.put(chave, valor);
-				} catch (Exception e) {
-					System.err
-							.println("Something wrong with the args!");
-					e.printStackTrace();
-					throw new Exception();					
+					System.exit(0);
+				}
+				if (arg.contains("--prop.config.host")
+						|| arg.contains("--prop.config.user")
+						|| arg.contains("--prop.config.password")
+						|| arg.contains("--prop.config.database")
+						|| arg.contains("--prop.config.port")
+						|| arg.contains("--prop.config.file")) {
+					try {
+						String[] argumentosValor = arg.split("=");
+						String valor = argumentosValor[1];
+						String[] argumentosChave = argumentosValor[0]
+								.split("\\.");
+						String chave = argumentosChave[2];
+						configuracao.put(chave, valor);
+					} catch (Exception e) {
+						System.err.println("Something wrong with the args!");
+						e.printStackTrace();
+						throw new Exception();
+					}
 				}
 			}
+		} else {
+			System.out.println(".::RDF2RDB::.");
+			System.out.println("Execute:");
+			System.out.println(" ");
+			System.out.println("java -jar /path/to/rdftorbd.jar --help");
+			System.out.println(" ");
+			System.out.println("to help. ");
+			System.exit(0);
 		}
 
 		String keyToSearch = "port";
@@ -380,17 +405,17 @@ public class SearchInRdf {
 			configuracao.put("port", valorPadrao);
 		}
 
-		for (String key : configuracao.keySet()) {			 
+		for (String key : configuracao.keySet()) {
 			String value = configuracao.get(key);
 			System.out.println(key + " = " + value);
 		}
-		
+
 		return configuracao;
-	
+
 	}
 
 	public String getArquivoRdf(Map<String, String> config) {
-		return config.get("file");	
+		return config.get("file");
 	}
 
 	public int getQueryCountRdf(String tabela, String root) {
