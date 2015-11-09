@@ -6,20 +6,22 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
-import br.com.thiagobarso.system.ConnectionFactory;
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.util.FileManager;
 
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryExecutionFactory;
-import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.util.FileManager;
+import br.com.thiagobarso.system.ConnectionFactory;
 
 public class SearchInRdf {
 
@@ -110,7 +112,7 @@ public class SearchInRdf {
 	}
 
 	public void getQuerySelectRdf(String tabela, String singleroot,
-			ArrayList<String> colunas) {
+			ArrayList<String> colunas,Map<String,String> config) {
 		System.out
 				.println("=================Começando - getQuerySelectRdf - tabela:"
 						+ tabela);
@@ -172,7 +174,7 @@ public class SearchInRdf {
 				if ((i % 1000) == 0) {
 					executaSql(querySqlInsert
 							.deleteCharAt(querySqlInsert.length() - 1)
-							.append(";").toString());
+							.append(";").toString(),config);
 					querySqlInsert.delete(0, querySqlInsert.length());
 					querySqlInsert.append(createBeginInsert(tabela, colunas));
 					i = 0;
@@ -181,7 +183,7 @@ public class SearchInRdf {
 				valores.clear();
 			}
 			executaSql(querySqlInsert.deleteCharAt(querySqlInsert.length() - 1)
-					.append(";").toString());
+					.append(";").toString(),config);
 			System.gc();
 		}
 		System.out
@@ -310,9 +312,9 @@ public class SearchInRdf {
 		// teste
 	}
 
-	public static void executaSql(String sql) {
+	public static void executaSql(String sql, Map<String, String> config) {
 		// conectando
-		Connection con = new ConnectionFactory().getConnection();
+		Connection con = new ConnectionFactory().getConnection(config);
 
 		// cria um preparedStatement
 		PreparedStatement stmt = null;
@@ -328,10 +330,10 @@ public class SearchInRdf {
 		System.out.print("."); // Gravado no banco de dados.
 	}
 
-	public void testeConexao() {
+	public void testeConexao(Map<String, String> config) {
 		System.out.println("Teste de conexao com banco");
 		// conectando
-		Connection con = new ConnectionFactory().getConnection();
+		Connection con = new ConnectionFactory().getConnection(config);
 
 		// cria um preparedStatement
 		PreparedStatement stmt = null;
@@ -347,25 +349,48 @@ public class SearchInRdf {
 		System.out.println("Conectado com sucesso!");
 	}
 
-	public Properties getProp() throws IOException {
-		Properties props = new Properties();
-		FileInputStream file = new FileInputStream("./dados.properties");
-		props.load(file);
-		return props;
+	public Map<String,String> getProp(String[] args) throws Exception {
+		Map<String, String> configuracao = new HashMap<String, String>();
+
+		for (String arg : args) {			
+			if (arg.contains("--prop.config.host")
+					|| arg.contains("--prop.config.user")
+					|| arg.contains("--prop.config.password")
+					|| arg.contains("--prop.config.database")
+					|| arg.contains("--prop.config.port")
+					|| arg.contains("--prop.config.file")) {
+				try {
+					String[] argumentosValor = arg.split("=");
+					String valor = argumentosValor[1];
+					String[] argumentosChave = argumentosValor[0].split("\\.");
+					String chave = argumentosChave[2];
+					configuracao.put(chave, valor);
+				} catch (Exception e) {
+					System.err
+							.println("Something wrong with the args!");
+					e.printStackTrace();
+					throw new Exception();					
+				}
+			}
+		}
+
+		String keyToSearch = "port";
+		if (!configuracao.containsKey(keyToSearch)) {
+			String valorPadrao = "5432";
+			configuracao.put("port", valorPadrao);
+		}
+
+		for (String key : configuracao.keySet()) {			 
+			String value = configuracao.get(key);
+			System.out.println(key + " = " + value);
+		}
+		
+		return configuracao;
+	
 	}
 
-	public String getArquivoRdf() {
-		String arquivoRdf = new String();
-		try {
-			Properties prop = getProp();
-			arquivoRdf = prop.getProperty("prop.server.arquivo.rdf");
-		} catch (IOException e) {
-			System.out
-					.println("Ops!Algo deu errado com o nome da localização do arquivo rdf! ");
-			System.out.println("Reveja o arquivo dados.properties");
-			e.printStackTrace();
-		}
-		return arquivoRdf;
+	public String getArquivoRdf(Map<String, String> config) {
+		return config.get("file");	
 	}
 
 	public int getQueryCountRdf(String tabela, String root) {

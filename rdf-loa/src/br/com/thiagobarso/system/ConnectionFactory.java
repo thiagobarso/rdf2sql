@@ -1,37 +1,18 @@
 package br.com.thiagobarso.system;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Properties;
-
-import br.com.thiagobarso.service.SearchInRdf;
+import java.util.Map;
 
 public class ConnectionFactory {
-	private static SearchInRdf search = new SearchInRdf();
 	
-	public Connection getConnection() {
-		String banco = null;
-		String usuario = null;
-		String senha = null;
-		String host = null;
-		String porta = null;
-
-		try {			
-			Properties prop = search.getProp();
-			banco = prop.getProperty("prop.server.banco");
-			usuario = prop.getProperty("prop.server.usuario");
-			senha = prop.getProperty("prop.server.senha");
-			host = prop.getProperty("prop.server.host");
-			porta = prop.getProperty("prop.server.porta");
-		} catch (IOException e) {
-			System.out
-					.println("Ops!Algo deu errado com o nome da localização do arquivo rdf! ");
-			System.out.println("Reveja o arquivo dados.properties na pasta desse jar.");
-			e.printStackTrace();
-		}
-
+	public Connection getConnection(Map<String, String> prop) {
+		String banco = prop.get("database");
+		String usuario = prop.get("user");
+		String senha = prop.get("password");
+		String host = prop.get("host");
+		String porta = prop.get("port");
 		try {
 			return DriverManager.getConnection("jdbc:postgresql://" + host
 					+ ":" + porta + "/" + banco, usuario, senha);
